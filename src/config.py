@@ -7,7 +7,7 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from dotenv import load_dotenv
 
-
+jk
 # The root folder of the Week 2 project
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
