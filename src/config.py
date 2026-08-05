@@ -5,7 +5,7 @@ import os
 import re
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
-from dotenv import load_dotenv
+import dotenv
 
 
 # The root folder of the Week 2 project
