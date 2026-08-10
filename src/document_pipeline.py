@@ -57,6 +57,7 @@ def clean_extracted_text(text: str) -> str:
     and excessive blank lines.
     """
 
+    text = text.replace("\x00", "")
     text = text.replace("\r\n", "\n")
     text = text.replace("\r", "\n")
 
