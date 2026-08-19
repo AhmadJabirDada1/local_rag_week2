@@ -10,6 +10,8 @@ from dotenv import load_dotenv
 # The root folder of the Week 2 project
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
+DATA_DIR = PROJECT_ROOT / "data"
+
 # Load variables from local_rag_week2/.env
 load_dotenv(PROJECT_ROOT / ".env")
 

@@ -24,6 +24,7 @@ from .config import (
     VECTOR_TABLE,
     CHUNK_OVERLAP,
     CHUNK_SIZE,
+    DATA_DIR,
     setup_logging,
 )
 
@@ -321,14 +322,15 @@ def store_chunks(
             embeddings,
             strict=True,
         ):
+            clean_content = chunk.text.replace("\x00", "")
             cursor.execute(
                 insert_query,
                 (
                     chunk.source,
                     chunk.page_number,
                     chunk.chunk_index,
-                    chunk.text,
-                    len(chunk.text),
+                    clean_content,
+                    len(clean_content),
                     Vector(embedding),
                 ),
             )
@@ -365,11 +367,47 @@ def index_document(reset: bool) -> None:
     Execute the complete Thursday indexing process.
     """
 
-    pages, chunks = load_and_chunk_pdf(
-        pdf_path=PDF_PATH,
-        chunk_size=CHUNK_SIZE,
-        chunk_overlap=CHUNK_OVERLAP,
+    pdf_files = sorted(
+    DATA_DIR.glob("*.pdf")
     )
+
+    if not pdf_files:
+        raise FileNotFoundError(
+            f"No PDF files found in {DATA_DIR}"
+        )
+
+    all_pages = []
+    all_chunks = []
+
+    print(
+        f"\nFound {len(pdf_files)} PDF document(s)."
+    )
+
+    for pdf_file in pdf_files:
+
+        print(
+            f"\nProcessing: {pdf_file.name}"
+        )
+
+        pages, chunks = load_and_chunk_pdf(
+            pdf_path=pdf_file,
+            chunk_size=CHUNK_SIZE,
+            chunk_overlap=CHUNK_OVERLAP,
+        )
+
+        all_pages.extend(pages)
+        all_chunks.extend(chunks)
+
+        print(
+            f"Pages containing text: {len(pages)}"
+        )
+
+        print(
+            f"Chunks created: {len(chunks)}"
+        )
+
+    pages = all_pages
+    chunks = all_chunks
 
     ollama_client = create_ollama_client()
 
@@ -406,6 +444,10 @@ def index_document(reset: bool) -> None:
 
     print("\nINDEXING SUMMARY")
     print("=" * 75)
+
+    print(
+        f"Documents processed: {len(pdf_files)}"
+    )
 
     print(
         f"Pages containing text: {len(pages)}"
